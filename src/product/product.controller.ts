@@ -13,6 +13,7 @@ export class ProductController {
     @Get('protected')
     @UseGuards(ProductGuard)
     handleProtected(@Request() req){
+        console.log(req);
         return `private content of ${req.userID}`;
     }
 }

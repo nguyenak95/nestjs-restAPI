@@ -14,20 +14,21 @@ export class ProductGuard implements CanActivate {
             return false
         }
         else {
-            const validToken = authorize.search("Bearer ") !== -1;
+            const validHeader = authorize.search("Bearer ") !== -1;
             const token = authorize.replace("Bearer ","");
 
-            if (validToken){
+            if (validHeader){
                 try {
                     const userID = jwt.verify(token, "acexis").userID;
+
+                    // If userID exist in database, then assign userID to Request Object, if token valid but not exist req.userID will null
                     if (this.authService.checkUser(userID)){
                         request.userID = userID;
-                        return true; 
                     }
-                    else return false;
+                    return true; 
                 }
                 catch{
-                    return false;
+                    return true;
                 }
             }
             else return false;
