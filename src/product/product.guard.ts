@@ -9,29 +9,23 @@ export class ProductGuard implements CanActivate {
 	canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
         const authorize = request && request.headers.authorization;
-
         if (!authorize){
             return false
         }
-        else {
-            const validHeader = authorize.search("Bearer ") !== -1;
-            const token = authorize.replace("Bearer ","");
 
-            if (validHeader){
-                try {
-                    const userID = jwt.verify(token, "acexis").userID;
-
-                    // If userID exist in database, then assign userID to Request Object, if token valid but not exist req.userID will null
-                    if (this.authService.checkUser(userID)){
-                        request.userID = userID;
-                    }
-                    return true; 
-                }
-                catch{
-                    return true;
-                }
-            }
-            else return false;
+        const validHeader = authorize.search("Bearer ") !== -1;
+        if (!validHeader){
+            return false;   
         }
+
+        const token = authorize.replace("Bearer ","");
+        jwt.verify(token, "acexis",(err,decode)=>{
+            if (err){
+                return false;
+            }
+            request.userID = decode.userID;
+        })
+        return true;
     }
+    
 }

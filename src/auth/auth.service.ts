@@ -53,8 +53,4 @@ export class AuthService {
         }
     }
 
-    checkUser(userID){
-        return this.userList.findIndex(usr=>usr.userID ===userID) !== -1
     }
-
-    }``
