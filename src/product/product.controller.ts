@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Headers,Response } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request } from '@nestjs/common';
 import { ProductGuard } from './product.guard';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -12,13 +12,7 @@ export class ProductController {
 
     @Get('protected')
     @UseGuards(ProductGuard)
-    handleProtected(@Headers() header,@Response() res){
-        const user = this.authService.handleProtected(header);
-        if (!user) {
-            res.status(401).end();
-        }
-        else {
-            res.send(`private content of ${user.userID}`);
-        }
+    handleProtected(@Request() req){
+        return `private content of ${req.userID}`;
     }
 }

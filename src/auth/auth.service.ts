@@ -53,18 +53,8 @@ export class AuthService {
         }
     }
 
-    handleProtected(header){
-        const token = header.authorization.replace("Bearer ","");
-        const verify = jwt.verify(token, secret);
-        if (!verify) return false;
-        else {
-            const decode = jwt.decode(token);
-            const user = this.userList.find(usr=>usr.userID ===decode.userID)
-            if (!user){
-                return false;
-            }
-            else return user;
-        }
+    checkUser(userID){
+        return this.userList.findIndex(usr=>usr.userID ===userID) !== -1
+    }
 
     }
-}
