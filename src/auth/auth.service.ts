@@ -1,56 +1,61 @@
-import { Injectable } from "@nestjs/common";
-const bcrypt = require("bcrypt");
-const salt = bcrypt.genSaltSync(5);
+import { Injectable } from '@nestjs/common'
 
-//Auto generate id:
-const uuidv1 = require("uuid/v1");
-const jwt = require("jsonwebtoken");
-const secret = "acexis";
+import bcrypt = require('bcrypt')
+
+const uuidv1 = require('uuid/v1')
+
+const jwt = require('jsonwebtoken')
+
+const salt = bcrypt.genSaltSync(5)
+
+// Auto generate id:
+const secret = 'acexis'
 
 @Injectable()
 export class AuthService {
-	private userList = [];
-    
-    handleRegister(body) {
-		const { name, username, password } = body;
-		const userExist =
-			this.userList.findIndex(user => user.username === username) >= 0;
+private userList = [];
 
-		if (userExist) {
-			return false;
-        }
-        
-		const hashPwd = bcrypt.hashSync(password, salt);
-		const id = uuidv1();
-        
-        this.userList.push({ name, username, password: hashPwd, userID: id });
-        
-        return true;
-    }
-    
-    getUserInfo(username){
-        const user = this.userList.find(usr=>usr.username === username);
-        return user;
-    }
+handleRegister(body) {
+  const { name, username, password } = body
+  const userExist = this.userList.findIndex((user) => user.username === username) >= 0
 
-    handleLogin(body){
-        const {username,password} = body;
+  if (userExist) {
+    return false
+  }
 
-        const user = this.userList.find(usr=>usr.username === username);
+  const hashPwd = bcrypt.hashSync(password, salt)
+  const id = uuidv1()
 
-        if (!user) {
-			return false;
-        }
+  this.userList.push({
+    name, username, password: hashPwd, _id: id
+  })
 
-        else if (!bcrypt.compareSync(password, user.password)){
-            return false;
-        }
+  return true
+}
 
-        else {
-            const {userID,...rest} = user;
-            const token = jwt.sign({userID},secret);
-            return {token};
-        }
-    }
+getUserInfo(username) {
+  const user = this.userList.find((usr) => usr.username === username)
+  return user
+}
 
-    }
+handleLogin(body) {
+  const { username, password } = body
+
+  const user = this.userList.find((usr) => usr.username === username)
+
+  if (!user) {
+    return false
+  }
+  if (!bcrypt.compareSync(password, user.password)) {
+    return false
+  }
+  const { _id, ...rest } = user
+  const token = jwt.sign({ userID: _id }, secret)
+  return { token }
+}
+
+checkValidToken(userID) {
+  // eslint-disable-next-line no-underscore-dangle
+  return this.userList.findIndex((usr) => usr._id === userID) !== -1
+}
+}
